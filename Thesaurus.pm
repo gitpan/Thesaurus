@@ -3,7 +3,7 @@ package Thesaurus;
 use strict;
 use vars qw[$VERSION];
 
-$VERSION = (sprintf '%2d.%02d', q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/) - 1;
+$VERSION = (sprintf '%2d.%02d', q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/) - 1;
 
 1;
 
@@ -194,7 +194,7 @@ its data.
 =item * find(@items);
 
  @words = $th->find('Big Hat');
- %words = %th->find('Big Hat', 'Faye Wong');
+ %words = $th->find('Big Hat', 'Faye Wong');
 
 The C<find> method returns either a list or a hash, depending on
 context.  Given a single word to find, it returns the list of words

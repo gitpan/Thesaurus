@@ -11,7 +11,7 @@ BEGIN
     $| = 1;
     print "1..1\n";
 
-    foreach my $mod ( qw[ DB_File GDBM_File NDBM_File ODBM_File ] )
+    foreach my $mod ( qw[ DB_File GDBM_File ODBM_File ] )
     {
 	eval "use $mod";
 	unless ($@)

@@ -26,6 +26,13 @@ that order).
 
 History
 
+0.11
+
+- Made the locking defaults do what the docs say they do.
+
+- Added death if someone wants to use NDBM_File cause it doesn't have
+EXISTS either.
+
 0.1
 
 - Added locking for Thesaurus::DBM.

@@ -6,7 +6,7 @@ use vars qw[$VERSION @ISA];
 use Thesaurus;
 use File::Flock;
 
-$VERSION = (sprintf '%2d.%02d', q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/) - 1;
+$VERSION = (sprintf '%2d.%02d', q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/) - 1;
 @ISA = qw(Thesaurus);
 
 1;
@@ -16,17 +16,17 @@ sub import
 {
     shift;
 
-    my $ev_string = 'use MLDBM ';
-
     die "Can't use SDBM_File with Thesaurus::DBM (see docs)\n"
 	if ( (not $_[0]) or ($_[0] eq 'SDBM_File') );
 
-    if (@_)
-    {
-	$ev_string .= 'qw(';
-	$ev_string .= join ' ', @_;
-	$ev_string .= ');';
-    }
+    die "Can't use NDBM_File with Thesaurus::DBM (see docs)\n"
+	if $_[0] eq 'NDBM_File';
+
+    my $ev_string = 'use MLDBM ';
+
+    $ev_string .= 'qw(';
+    $ev_string .= join ' ', @_;
+    $ev_string .= ');';
 
     eval $ev_string;
     die $@ if $@;
@@ -46,23 +46,16 @@ sub new
 
     $self->{params}{extra} ||= [];
 
-    # This is to designed to support both the standard AnyDBM_File
-    # syntax and the BerkeleyDB module syntax.
+    # This is designed to support both the standard AnyDBM_File syntax
+    # and the BerkeleyDB module syntax.
     my @params;
     push @params, $self->{params}{filename} if defined $self->{params}{filename};
     push @params, $self->{params}{flags} if defined $self->{params}{flags};
     push @params, $self->{params}{mode} if defined $self->{params}{mode};
     push @params, @{ $self->{params}{extra} };
 
-    if ($Thesaurus::DBM::canlock && (not defined $self->{params}{locking}))
-    {
-	$self->{params}{locking} = 1;
-	$self->{params}{lock_wait} = 2 unless defined $self->{params}{lock_wait};
-    }
-    else
-    {
-	$self->{params}{locking} = 0;
-    }
+    $self->{params}{locking} = 1 unless defined $self->{params}{locking};
+    $self->{params}{lock_wait} = 2 unless defined $self->{params}{lock_wait};
 
     my %hash;
     my $tied_obj = tie %hash, 'MLDBM', @params
@@ -211,9 +204,9 @@ are the first two, which are the DBM file module to use and the
 serialization module to use.  See the MLDBM documentation for more
 details.
 
-Thesaurus::DBM will B<not> work with SDBM_File because it does not
-support exists on tied hashes.  I believe that this is fixed in Perl
-5.6.
+Thesaurus::DBM will not work with SDBM_File or NDBM_File because they
+doe not support C<exists> on tied hashes.  I believe that this is
+fixed in Perl 5.6 (at least for SDBM_File).
 
 Thesaurus::DBM now supports locking.  When locking is enabled all
 operations are atomic.
