@@ -5,7 +5,7 @@ use vars qw[$VERSION @ISA];
 
 use Thesaurus;
 
-$VERSION = (sprintf '%2d.%02d', q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/) - 1;
+$VERSION = (sprintf '%2d.%02d', q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/) - 1;
 @ISA = qw(Thesaurus);
 
 1;
@@ -55,7 +55,13 @@ sub new
 
     $self->{data} = \%hash;
     $self->{tied_obj} = $tied_obj;
- 
+    $self->{th} = Thesaurus->new(%params);
+
+    foreach my $key (keys %{ $self->{data} })
+    {
+	$self->{th}->add( $self->{data}{$key} );
+    }
+
     return $self;
 }
 
@@ -64,18 +70,34 @@ sub add
     my $self = shift;
 
     # Lock it somehow?
-#    $self->{tied_obj}->
 
-    $self->SUPER::add(@_);
+    $self->{th}->add(@_);
+
+    $self->_reserialize;
 
     # Unlock it somehow!
+}
+
+sub _reserialize
+{
+    my $self = shift;
+
+    foreach my $list ($self->{th}->dump)
+    {
+	foreach my $item (@$list)
+	{
+	    delete $self->{data}{$item};
+	}
+
+	$self->SUPER::add($list);
+    }
 }
 
 sub find
 {
     my $self = shift;
 
-    $self->SUPER::find(@_);
+    $self->{th}->find(@_);
 
 }
 
@@ -83,15 +105,15 @@ sub delete
 {
     my $self = shift;
 
+    $self->{th}->delete(@_);
     $self->SUPER::delete(@_);
-
 }
 
 sub dump
 {
     my $self = shift;
 
-    $self->SUPER::dump(@_);
+    $self->{th}->dump(@_);
 
 }
 
