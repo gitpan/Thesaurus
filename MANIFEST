@@ -2,6 +2,7 @@ MANIFEST
 README
 Makefile.PL
 test.pl
+lock_test.pl
 Thesaurus.pm
 File.pm
 DBM.pm

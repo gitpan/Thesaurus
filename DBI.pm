@@ -3,8 +3,9 @@ package Thesaurus::DBI;
 use strict;
 use vars qw[$VERSION @ISA];
 
+use Thesaurus;
 
-$VERSION = (sprintf '%2d.%02d', q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/) - 1;
+$VERSION = (sprintf '%2d.%02d', q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/) - 1;
 @ISA = qw(Thesaurus);
 
 1;

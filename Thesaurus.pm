@@ -2,9 +2,8 @@ package Thesaurus;
 
 use strict;
 use vars qw[$VERSION];
-use Carp;
 
-$VERSION = (sprintf '%2d.%02d', q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/) - 1;
+$VERSION = (sprintf '%2d.%02d', q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/) - 1;
 
 1;
 

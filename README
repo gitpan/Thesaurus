@@ -1,12 +1,17 @@
 This is the Thesaurus module and its subclasses.
 
-Currently, this is alpha code.  However, all the basic functionality
-for the Thesaurus, Thesaurus::File, and Thesaurus::DBM (except for
-locking) is in place.  Thesaurus::DBI is currently an empty module
-with some docs.  The interface is unlikely to change in any major way.
-
 Thesaurus is a module that implements the notion of equivalence
 between things (anything that fits in a scalar).
+
+All the basic functionality for Thesaurus, Thesaurus::File, and
+Thesaurus::DBM is in place.  Thesaurus::DBI is currently an empty
+module with some docs.
+
+
+Required Modules
+
+ Thesaurus::File: Text_CSV_XS, IO::File
+ Thesaurus::DBM: File::Flock, MLDBM, A DBM module besides SDBM_File.
 
 
 To Do
@@ -18,14 +23,28 @@ very flexible so there are no hardcoded column or table names.  I plan
 to implement MySQL, Oracle, and PostgreSQL subclasses (probably in
 that order).
 
-- test.pl
-
-- Locking in Thesaurus::DBM.
-
 
 History
 
-0.02 - Fixed a bug in Thesaurus::DBM.  Apparently, MLDBM doesn't store
+0.1
+
+- Added locking for Thesaurus::DBM.
+
+- Thesaurus::DBM dies if you don't give it some sort of use argument
+besides SDBM_File.
+
+- Really fixed the bug that was sort of fixed in 0.02.  The previous
+solution worked but was slow, slow, slow.  The new fix is only slow so
+that's an improvement.
+
+- Added test.pl test suite.  This does a reasonably good job of
+exercising the code.  This makes it much easier to move forward with
+new versions.  If someone has a more elegant method of testing the
+locking please let me know.
+
+0.02
+
+- Fixed a bug in Thesaurus::DBM.  Apparently, MLDBM doesn't store
 references, just data.  I did some strange things in Thesaurus::DBM to
 ensure that the object preserves data integrity correctly.  The upside
 is that this module now works as it should (I think).  The downside is
@@ -34,7 +53,9 @@ means that Thesaurus::File is potentially faster for large structures.
 OTOH, Thesaurus::DBM keeps all changes on disk as you go.  I'll try to
 tune Thesaurus::DBM as much as possible.
 
-0.01 - Initial release
+0.01
+
+ - Initial release
 
 
 Copyright (c) 1999 David Rolsky. All rights reserved. This program is

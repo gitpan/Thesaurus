@@ -4,8 +4,9 @@ use strict;
 use vars qw[$VERSION @ISA];
 
 use Thesaurus;
+use File::Flock;
 
-$VERSION = (sprintf '%2d.%02d', q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/) - 1;
+$VERSION = (sprintf '%2d.%02d', q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/) - 1;
 @ISA = qw(Thesaurus);
 
 1;
@@ -13,9 +14,13 @@ $VERSION = (sprintf '%2d.%02d', q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/) - 1;
 # use MLDBM with appropriate parameters.
 sub import
 {
+    shift;
+
     my $ev_string = 'use MLDBM ';
 
-    shift;
+    die "Can't use SDBM_File with Thesaurus::DBM (see docs)\n"
+	if ( (not $_[0]) or ($_[0] eq 'SDBM_File') );
+
     if (@_)
     {
 	$ev_string .= 'qw(';
@@ -49,18 +54,22 @@ sub new
     push @params, $self->{params}{mode} if defined $self->{params}{mode};
     push @params, @{ $self->{params}{extra} };
 
+    if ($Thesaurus::DBM::canlock && (not defined $self->{params}{locking}))
+    {
+	$self->{params}{locking} = 1;
+	$self->{params}{lock_wait} = 2 unless defined $self->{params}{lock_wait};
+    }
+    else
+    {
+	$self->{params}{locking} = 0;
+    }
+
     my %hash;
     my $tied_obj = tie %hash, 'MLDBM', @params
 	or die "can't tie hash to MLDBM: $!";
 
     $self->{data} = \%hash;
     $self->{tied_obj} = $tied_obj;
-    $self->{th} = Thesaurus->new(%params);
-
-    foreach my $key (keys %{ $self->{data} })
-    {
-	$self->{th}->add( $self->{data}{$key} );
-    }
 
     return $self;
 }
@@ -69,52 +78,65 @@ sub add
 {
     my $self = shift;
 
-    # Lock it somehow?
+    # Exclusive lock
+    $self->_lock(undef)
+	if $self->{params}{locking};
 
-    $self->{th}->add(@_);
-
-    $self->_reserialize;
-
-    # Unlock it somehow!
-}
-
-sub _reserialize
-{
-    my $self = shift;
-
-    foreach my $list ($self->{th}->dump)
+    my @add;
+    foreach my $list (@_)
     {
-	foreach my $item (@$list)
+	my @new_list = @$list;
+
+	foreach my $new_item (@$list)
+	{
+	    push @new_list, @{ $self->{data}{$new_item} }
+		if exists $self->{data}{$new_item};
+	}
+
+	foreach my $item (@new_list)
 	{
 	    delete $self->{data}{$item};
 	}
 
-	$self->SUPER::add($list);
+	push @add, \@new_list;
     }
+
+    $self->SUPER::add(@add);
+
+    $self->_unlock
+	if $self->{params}{locking};
 }
 
 sub find
 {
     my $self = shift;
 
-    $self->{th}->find(@_);
+    $self->_lock('shared');
 
+    my @ret = $self->SUPER::find(@_);
+
+    $self->_unlock;
+
+    return @ret;
 }
 
 sub delete
 {
     my $self = shift;
 
-    $self->{th}->delete(@_);
+    # Exclusive lock
+    $self->_lock(undef);
+
     $self->SUPER::delete(@_);
+
+    $self->_unlock;
 }
 
 sub dump
 {
     my $self = shift;
 
-    $self->{th}->dump(@_);
-
+    $self->SUPER::dump(@_);
 }
 
 sub _add_thing
@@ -132,6 +154,34 @@ sub _add_thing
 	$self->{data}{$item} = $tmp;
     }
 }
+
+sub _lock
+{
+    my $self = shift;
+    my $type = shift;
+
+    unless ( lock($self->{params}{filename}, $type, 'nonblocking') )
+    {
+	my $x = 0;
+	my $locked = 0;
+	while (not $locked and $x++ < $self->{params}{lock_wait})
+	{
+	    lock($self->{params}{filename}, $type, 'nonblocking')
+		and $locked = 1;
+	}
+
+	die "can't get lock on $self->{params}{filename}: $!"
+	    unless $locked;
+    }
+}
+
+sub _unlock
+{
+    my $self = shift;
+
+    die "can't unlock $self->{params}{filename}: $!" unless unlock($self->{params}{filename});
+}
+    
 
 __END__
 
@@ -161,6 +211,13 @@ are the first two, which are the DBM file module to use and the
 serialization module to use.  See the MLDBM documentation for more
 details.
 
+Thesaurus::DBM will B<not> work with SDBM_File because it does not
+support exists on tied hashes.  I believe that this is fixed in Perl
+5.6.
+
+Thesaurus::DBM now supports locking.  When locking is enabled all
+operations are atomic.
+
 =head1 METHODS
 
 =over 4
@@ -188,6 +245,14 @@ to the DBM module as an additional argument.
 For the BerkeleyDB module, and others that don't follow the
 AnyDBM_File module syntax, just put all the parameters in extra and
 Thesaurus::DBM will handle this appropriately.
+
+=item * locking ($) - A true or false value indicating whether or not
+you wish the object to attempt to get a lock for reading and writing
+to the DBM file.  Locking is safer but slower.  The default is to
+enable locking.
+
+=item * lock_wait ($) - How long, in seconds, to wait for a lock.  The
+default is 2 seconds.
 
 =back
 
