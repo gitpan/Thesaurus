@@ -11,12 +11,12 @@ module with some docs.
 Required Modules
 
  Thesaurus::File: Text_CSV_XS, IO::File
- Thesaurus::DBM: File::Flock, MLDBM, A DBM module besides SDBM_File.
+ Thesaurus::DBM: File::Flock, MLDBM, DB_File or GDBM_File
 
 
 To Do
 
-- Thesarus::DBI.  This means making Thesaurus::DBI::<your DB system
+- Thesaurus::DBI.  This means making Thesaurus::DBI::<your DB system
 here> subclasses as well as a configuration script to help people set
 up the tables they'll need to implement this.  My goal is to make this
 very flexible so there are no hardcoded column or table names.  I plan
@@ -25,6 +25,16 @@ that order).
 
 
 History
+
+0.12
+
+- (Hopefully) made the test suite smarter.  It checks to see if you
+have the needed modules for a given subclass before attempting to
+test it.  This doesn't affect the install (it'll still install all
+of them).
+
+- I'm also moving this from my PGRIMES account on CPAN (not my name)
+to my DROLSKY account.  No, I'm not paranoid.
 
 0.11
 

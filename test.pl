@@ -9,25 +9,58 @@
 BEGIN
 {
     $| = 1;
-    print "1..1\n";
 
-    foreach my $mod ( qw[ DB_File GDBM_File ODBM_File ] )
+    eval 'use File::Flock;';
+
+    if ($@)
     {
-	eval "use $mod";
-	unless ($@)
+	warn "Couldn't load File::Flock, will skip Thesaurus::DBM tests.\n";
+    }
+    else
+    {
+	foreach my $mod ( qw[ DB_File GDBM_File ] )
 	{
-	    $dbm_module = $mod;
-	    last;
+	    eval "use $mod";
+	    unless ($@)
+	    {
+		$dbm_module = $mod;
+		last;
+	    }
+	}
+
+	eval "use MLDBM;";
+
+	if ($@)
+	{
+	    warn "Couldn't load MLDBM, will skip Thesaurus::DBM tests.\n";
+	}
+	elsif (not defined $dbm_module)
+	{
+	    warn "Couldn't load DB_File or GDBM_File, will skip Thesaurus::DBM tests.\n";
+	}
+	else
+	{
+	    eval "use Thesaurus::DBM ($dbm_module)";
 	}
     }
+
+    eval "use Text::CSV_XS;";
+
+    if ($@)
+    {
+	warn "Couldn't load Text::CSV_XS, will skip Thesaurus::File tests.\n";
+    }
+    else
+    {
+	eval 'use Thesaurus::File;';
+    }
+
+    print "1..1\n";
 }
 END {print "not ok 1\n" unless $loaded;}
 
 use Thesaurus;
-use Thesaurus::File;
-use Thesaurus::DBM ($dbm_module);
 use Thesaurus::DBI;
-use File::Flock;
 
 $loaded = 1;
 &result($loaded, 'Error compiling one of the modules');
@@ -40,6 +73,7 @@ use strict;
 # (correspondingly "not ok 13") depending on the success of chunk 13
 # of the test code):
 
+warn "\nThesaurus\n\n";
 my $th = Thesaurus->new;
 
 # 1-8: Test add, find, and delete as well as case sensitivity.
@@ -89,6 +123,11 @@ unless (defined $tmpdir)
     exit;
 }
 
+goto DBM_TESTS unless $Thesaurus::File::VERSION;
+
+warn "\nThesaurus::File\n\n";
+
+# Make some files for Thesaurus::File tests.
 open OUT, ">$tmpdir/th_file_$$.csv"
     or die "can't write to $tmpdir/th_file_$$.csv: $!";
 
@@ -149,12 +188,11 @@ unlink "$tmpdir/th_file_${$}_2.csv"
 unlink "$tmpdir/th_file_${$}_save.csv"
     or die "can't remove $tmpdir/th_file_${$}_save.csv: $!";
 
-unless ($Thesaurus::DBM::VERSION)
-{
-    warn "Couldn't find a DBM module besides SDBM_File to use.  Skipping Thesaurus::DBM tests.\n";
-    exit;
-}
+DBM_TESTS:
 
+exit unless $Thesaurus::DBM::VERSION;
+
+warn "\nThesaurus::DBM\n\n";
 use Fcntl; # For flags
 
 my $dbmfile = "$tmpdir/th_dbm_$$.dbm";
@@ -232,14 +270,4 @@ sub result
     $TESTNUM++;
     print "not "x!$ok, "ok $TESTNUM\n";
     print @_ if !$ok;
-
-    if (!$ok and $TESTNUM < 19)
-    {
-	print "Thesaurus object:\n\n";
-	foreach my $list ($th->dump)
-	{
-	    print join ', ', @$list;
-	    print "\n";
-	}
-    }
 }

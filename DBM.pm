@@ -5,8 +5,9 @@ use vars qw[$VERSION @ISA];
 
 use Thesaurus;
 use File::Flock;
+use Carp;
 
-$VERSION = (sprintf '%2d.%02d', q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/) - 1;
+$VERSION = (sprintf '%2d.%02d', q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/) - 1;
 @ISA = qw(Thesaurus);
 
 1;
@@ -17,10 +18,13 @@ sub import
     shift;
 
     die "Can't use SDBM_File with Thesaurus::DBM (see docs)\n"
-	if ( (not $_[0]) or ($_[0] eq 'SDBM_File') );
+	if ( (not $_[0]) || ($_[0] eq 'SDBM_File') );
 
     die "Can't use NDBM_File with Thesaurus::DBM (see docs)\n"
 	if $_[0] eq 'NDBM_File';
+
+    die "can't use ODBM_File with Thesaurus::DBM (see docs)\n"
+	if $_[0] eq 'ODBM_File';
 
     my $ev_string = 'use MLDBM ';
 
@@ -58,8 +62,8 @@ sub new
     $self->{params}{lock_wait} = 2 unless defined $self->{params}{lock_wait};
 
     my %hash;
-    my $tied_obj = tie %hash, 'MLDBM', @params
-	or die "can't tie hash to MLDBM: $!";
+    my $tied_obj = tie %hash, 'MLDBM', @params;
+    croak ("can't tie hash to MLDBM: $!") unless $tied_obj;
 
     $self->{data} = \%hash;
     $self->{tied_obj} = $tied_obj;
@@ -204,9 +208,9 @@ are the first two, which are the DBM file module to use and the
 serialization module to use.  See the MLDBM documentation for more
 details.
 
-Thesaurus::DBM will not work with SDBM_File or NDBM_File because they
-doe not support C<exists> on tied hashes.  I believe that this is
-fixed in Perl 5.6 (at least for SDBM_File).
+Thesaurus::DBM will not work with SDBM_File, NDBM_File, or ODBM_File
+because they doe not support C<exists> on tied hashes.  I believe that
+this is fixed in Perl 5.6 (at least for SDBM_File).
 
 Thesaurus::DBM now supports locking.  When locking is enabled all
 operations are atomic.
@@ -257,8 +261,7 @@ Dave Rolsky, <autarch@urth.org>
 
 =head1 SEE ALSO
 
-Thesaurus, Thesaurus::File, Thesaurus::DBI, MLDBM, DB_File, GDBM_File,
-SDBM_File, NDBM_File, ODBM_File
+Thesaurus, Thesaurus::File, Thesaurus::DBI, MLDBM, DB_File, GDBM_File
 
 =head1 COPYRIGHT
 
