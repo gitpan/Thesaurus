@@ -7,7 +7,7 @@ use Thesaurus;
 use File::Flock;
 use Carp;
 
-$VERSION = (sprintf '%2d.%02d', q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/) - 1;
+$VERSION = (sprintf '%2d.%02d', q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/) - 1;
 @ISA = qw(Thesaurus);
 
 1;

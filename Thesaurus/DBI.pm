@@ -5,7 +5,7 @@ use vars qw[$VERSION @ISA];
 
 use Thesaurus;
 
-$VERSION = (sprintf '%2d.%02d', q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/) - 1;
+$VERSION = (sprintf '%2d.%02d', q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/) - 1;
 @ISA = qw(Thesaurus);
 
 1;

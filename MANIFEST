@@ -4,6 +4,6 @@ Makefile.PL
 test.pl
 lock_test.pl
 Thesaurus.pm
-File.pm
-DBM.pm
-DBI.pm
+Thesaurus/File.pm
+Thesaurus/DBM.pm
+Thesaurus/DBI.pm

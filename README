@@ -26,6 +26,11 @@ that order).
 
 History
 
+0.15
+
+- Moved subclasses into Thesaurus subdirectory so man pages are
+created correctly during install.
+
 0.12
 
 - (Hopefully) made the test suite smarter.  It checks to see if you
