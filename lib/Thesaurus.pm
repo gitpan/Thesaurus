@@ -4,7 +4,7 @@ use strict;
 
 use vars qw[$VERSION];
 
-$VERSION = '0.20';
+$VERSION = '0.21';
 
 use Params::Validate qw( validate_with BOOLEAN );
 
@@ -157,7 +157,7 @@ __END__
 
 =head1 NAME
 
-Thesaurus - David Rolsky (grimes@waste.org)
+Thesaurus - Maintains lists of associated items
 
 =head1 SYNOPSIS
 

@@ -10,4 +10,4 @@ recommends:
   Text::CSV_XS: 0
 requires:
   Params::Validate: 0.24
-version: 0.20
+version: 0.21
