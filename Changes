@@ -1,0 +1,23 @@
+0.20  August 26, 2002 (from Taiwan)
+
+(several years later)
+
+Just for kicks, I thought I'd rework this code a bit, given that this
+is the first CPAN module I ever wrote and could use some rewriting.
+This release does break a fair chunk of the old interface, but I think
+that's for the best.
+
+- Remove Thesaurus::DBI (which never did anything anyway, it was just
+placeholder code that never got written).
+
+- Remove Thesaurus::DBM in favor of new Thesaurus::BerkeleyDB module.
+
+- Remove Thesaurus::File in favor of new Thesaurus::CSV module.
+
+- Rewrite internals quite a bit.
+
+- Change "dump" method to "all".
+
+0.15  February 15, 2000
+
+- initial release
