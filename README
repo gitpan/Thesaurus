@@ -1,0 +1,28 @@
+This is the Thesaurus module and its subclasses.
+
+Currently, this is alpha code.  However, all the basic functionality
+for the Thesaurus, Thesaurus::File, and Thesaurus::DBM (except for
+locking) is in place.  Thesaurus::DBI is currently an empty module
+with some docs.  The interface is unlikely to change in any major way.
+
+Thesaurus is a module that implements the notion of equivalence
+between things (anything that fits in a scalar).
+
+
+To Do
+
+- Thesarus::DBI.  This means making Thesaurus::DBI::<your DB system
+here> subclasses as well as a configuration script to help people set
+up the tables they'll need to implement this.  My goal is to make this
+very flexible so there are no hardcoded column or table names.  I plan
+to implement MySQL, Oracle, and PostgreSQL subclasses (probably in
+that order).
+
+- test.pl (coming with the next verison, I swear).
+
+- Locking in Thesaurus::DBM.
+
+
+Copyright (c) 1999 David Rolsky. All rights reserved. This program is
+free software; you can redistribute it and/or modify it under the same
+terms as Perl itself.

@@ -1,0 +1,8 @@
+MANIFEST
+README
+Makefile.PL
+test.pl
+Thesaurus.pm
+File.pm
+DBM.pm
+DBI.pm
