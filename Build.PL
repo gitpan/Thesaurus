@@ -13,4 +13,7 @@ Module::Build->new( module_name => 'Thesaurus',
                     build_requires =>
                     { Test::More => 0.46,
                     },
+                    sign => 1,
+                    create_readme => 1,
+                    create_makefile_pl => 'passthrough',
                   )->create_build_script;

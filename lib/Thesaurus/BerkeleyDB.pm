@@ -61,7 +61,7 @@ sub _add_list
     my $self = shift;
     my $list = shift;
 
-    my %items = $self->_make_list($list);
+    my %items = $self->_hash_from_list($list);
 
     my $cursor = $self->{db}->db_cursor( DB_WRITECURSOR )
         or die "cannot make db cursor: $BerkeleyDB::Error";
@@ -183,7 +183,7 @@ Thesaurus::BerkeleyDB - Store thesaurus data in a BerkeleyDB database
 
   use Thesaurus::BerkeleyDB;
 
-  my $book = Thesaurus->new( filename => '/some/file/name' );
+  my $book = Thesaurus::BerkeleyDB->new( filename => '/some/file/name.db' );
 
 =head1 DESCRIPTION
 
@@ -196,7 +196,7 @@ This module requires the C<BerkeleyDB> module from CPAN.
 
 =over 4
 
-=item *
+=item * new
 
 This subclass's C<new> method takes the following parameters, in
 addition to those accepted by its parent class:
@@ -221,6 +221,10 @@ An octal mode to be used if the database file needs to be created.
 This defaults to 0644.
 
 =back
+
+=item * delete
+
+This subclass overrides the C<delete()> method.
 
 =back
 

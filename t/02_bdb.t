@@ -1,14 +1,15 @@
 use strict;
 
 use File::Spec;
+use File::Temp qw( tempdir );
 
 use lib File::Spec->curdir, File::Spec->catdir( File::Spec->curdir, 't' );
 
-use File::Temp;
-
 use SharedTests;
 
-my (undef, $filename) = File::Temp::tempfile( undef, OPEN => 0 );
+
+my $dir = tempdir( CLEANUP => 1 );
+my $filename = File::Spec->catfile( $dir, 'thesaurus.db' );
 
 eval
 {
@@ -20,6 +21,3 @@ eval
 };
 
 warn $@ if $@;
-
-unlink $filename
-    or warn "cannot unlink temporary file $filename: $!";

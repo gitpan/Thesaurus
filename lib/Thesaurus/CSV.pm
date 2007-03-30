@@ -72,7 +72,7 @@ Thesaurus::CSV - Read/write thesarus data from/to a file
 
   use Thesaurus::CSV;
 
-  my $book = Thesaurus->new( filename => '/some/file/name' );
+  my $book = Thesaurus::CSV->new( filename => '/some/file/name.csv' );
 
 =head1 DESCRIPTION
 

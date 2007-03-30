@@ -4,7 +4,7 @@ use strict;
 
 use vars qw[$VERSION];
 
-$VERSION = '0.21';
+$VERSION = '0.22';
 
 use Params::Validate qw( validate_with BOOLEAN );
 
@@ -39,7 +39,7 @@ sub add
 
     foreach my $list (@_)
     {
-	$self->_add_list($list);
+        $self->_add_list($list);
     }
 }
 
@@ -48,15 +48,15 @@ sub _add_list
     my $self = shift;
     my $list = shift;
 
-    my %items = $self->_make_list($list);
+    my %items = $self->_hash_from_list($list);
 
     while ( my ($k, $v) = each %items )
     {
-	$self->{data}{$k} = $v;
+        $self->{data}{$k} = $v;
     }
 }
 
-sub _make_list
+sub _hash_from_list
 {
     my $self = shift;
     my $list = shift;
@@ -117,12 +117,12 @@ sub delete
 
     foreach my $item ( $self->_normalize_list(\@_) )
     {
-	next unless exists $self->{data}{$item};
+        next unless exists $self->{data}{$item};
 
-	foreach my $key ( @{ $self->{data}{$item} } )
-	{
-	    delete $self->{data}{$key};
-	}
+        foreach my $key ( @{ $self->{data}{$item} } )
+        {
+            delete $self->{data}{$key};
+        }
     }
 }
 
@@ -133,11 +133,11 @@ sub all
     my (%done, @data);
     foreach my $key ( keys %{ $self->{data} } )
     {
-	next if exists $done{$key};
+        next if exists $done{$key};
 
         @done{ @{ $self->{data}{$key} } } = ();
 
-	push @data, $self->{data}{$key};
+        push @data, $self->{data}{$key};
     }
 
     return @data
@@ -148,7 +148,8 @@ sub _normalize_list
     my $self = shift;
     my $list = shift;
 
-    return $self->{params}{ignore_case} ? map { lc } @$list : @$list;
+    return map { lc } @$list if $self->{params}{ignore_case};
+    return @$list;
 }
 
 1;
@@ -163,21 +164,21 @@ Thesaurus - Maintains lists of associated items
 
  use Thesaurus;
 
- $th = new Thesaurus( -files => [ 'file1', 'file2' ],
-		      -ignore_case => 1 );
+ my $th = Thesaurus->new( -files => [ 'file1', 'file2' ],
+                          -ignore_case => 1 );
 
  @words = $th->find('vegan');
 
- %words = $th->find( 'animal', 'liberation' );
+ %words = $th->find( 'Faye' );
 
- foreach $word ( @{ $words{animal} } )
+ foreach $word ( @{ $words{Faye} } )
  {
      #something ...
  }
 
  $th->add_file( 'file1', 'file2' );
 
- $th->add( 'tofu', 'mock duck' );
+ $th->add( [ 'tofu', 'mock duck' ] );
 
  $th->delete( 'meat', 'vivisection' );
 
@@ -238,10 +239,10 @@ associated words.  If no words were found then the key has a value of
 =item * add( \@list1, \@list2 )
 
 The C<add> method takes a list of list references.  Each of these
-references should contain a set of associated scalars.  Like the add
-files method, if an entry in the files matches an entry already
+references should contain a set of associated scalars.  Like the
+C<add_files()> method, if an entry in a list matches an entry already
 in the object, then it is appended to the existing list, otherwise a
-new entry is created.
+new association is created.
 
 =item * delete( @items )
 
@@ -260,14 +261,17 @@ once, not once per item it contains.
 
 Dave Rolsky, <autarch@urth.org>
 
+=head1 COPYRIGHT
+
+Copyright (c) 1999-2003 David Rolsky. All rights reserved. This
+program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+The full text of the license can be found in the LICENSE file included
+with this module.
+
 =head1 SEE ALSO
 
 Thesaurus::CSV, Thesaurus::BerkeleyDB
-
-=head1 COPYRIGHT
-
-Copyright (c) 1999-2002 David Rolsky. All rights reserved. This
-program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
 
 =cut
