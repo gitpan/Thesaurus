@@ -13,10 +13,11 @@ my $filename = File::Spec->catfile( $dir, 'thesaurus.db' );
 
 eval
 {
-    SharedTests::run_tests( class => 'Thesaurus::BerkeleyDB',
-                            p => { filename => $filename,
-                                   locking => 1,
-                                 },
+    SharedTests::run_tests( class   => 'Thesaurus::BerkeleyDB',
+                            require => 'BerkeleyDB',
+                            p       => { filename => $filename,
+                                         locking => 1,
+                                       },
                           );
 };
 

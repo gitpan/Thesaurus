@@ -13,9 +13,10 @@ my $filename = File::Spec->catfile( $dir, 'thesaurus.csv' );
 
 eval
 {
-    SharedTests::run_tests( class => 'Thesaurus::CSV',
+    SharedTests::run_tests( class       => 'Thesaurus::CSV',
+                            require     => 'Text::CSV_XS',
                             extra_tests => 5,
-                            p => { filename => $filename },
+                            p           => { filename => $filename },
                           );
 
     {

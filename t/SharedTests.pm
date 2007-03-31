@@ -9,13 +9,23 @@ sub run_tests
 {
     my %p = @_;
 
+    if ( $p{require} )
+    {
+        eval "require $p{require}";
+        if ( $@ =~ /locate/ )
+        {
+            plan skip_all => "These tests require $p{require}";
+            exit;
+        }
+    }
+
     $tests += $p{extra_tests} || 0;
 
     plan tests => $tests;
 
-    my $p = $p{p} || {};
-
     use_ok( $p{class} );
+
+    my $p = $p{p} || {};
 
     {
         my $th = $p{class}->new(%$p);
